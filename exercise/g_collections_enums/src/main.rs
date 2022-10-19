@@ -8,11 +8,23 @@
 // - `Hit`, containing the distance from the center (an f64)
 // - `Miss`
 //
+
+enum Shot {
+    Bullseye,
+    Hit(f64),
+    Miss,
+}
 // You will need to complete 1b as well before you will be able to run this program successfully.
 
 impl Shot {
     // Here is a method for the `Shot` enum you just defined.
     fn points(self) -> i32 {
+        match self {
+            Shot::Bullseye => 5,
+            Shot::Hit(x) if x < 3.0 => 2,
+            Shot::Hit(x) => 1,
+            Shot::Miss => 0,
+        }
         // 1b. Implement this method to convert a Shot into points
         // - return 5 points if `self` is a `Shot::Bullseye`
         // - return 2 points if `self` is a `Shot::Hit(x)` where x < 3.0
@@ -34,44 +46,53 @@ fn main() {
     //      - Less than 1.0 -- `Shot::Bullseye`
     //      - Between 1.0 and 5.0 -- `Shot::Hit(value)`
     //      - Greater than 5.0 -- `Shot::Miss`
-
-
+    for coord in arrow_coords {
+        coord.print_description();
+        let shot = match coord.distance_from_center() {
+            x if x < 1.0 => Shot::Bullseye,
+            x if x < 5.0 => Shot::Hit(coord.distance_from_center()),
+            _ => Shot::Miss,
+        };
+        shots.push(shot);
+    }
     let mut total = 0;
     // 3. Finally, loop through each shot in shots and add its points to total
-
+    for shot in shots {
+        total += shot.points();
+    }
     println!("Final point total is: {}", total);
-}
 
-// A coordinate of where an Arrow hit
-#[derive(Debug)]
-struct Coord {
-    x: f64,
-    y: f64,
-}
-
-impl Coord {
-    fn distance_from_center(&self) -> f64 {
-        (self.x.powf(2.0) + self.y.powf(2.0)).sqrt()
-    }
-    fn print_description(&self) {
-        println!(
-            "coord is {:.1} away, at ({:.1}, {:.1})",
-            self.distance_from_center(),
-            self.x,
-            self.y);
+    // A coordinate of where an Arrow hit
+    #[derive(Debug)]
+    struct Coord {
+        x: f64,
+        y: f64,
     }
 
-}
-
-// Generate some random coordinates
-fn get_arrow_coords(num: u32) -> Vec<Coord> {
-    let mut coords: Vec<Coord> = Vec::new();
-    for _ in 0..num {
-        let coord = Coord {
-            x: (rand::random::<f64>() - 0.5) * 12.0,
-            y: (rand::random::<f64>() - 0.5) * 12.0,
-        };
-        coords.push(coord);
+    impl Coord {
+        fn distance_from_center(&self) -> f64 {
+            (self.x.powf(2.0) + self.y.powf(2.0)).sqrt()
+        }
+        fn print_description(&self) {
+            println!(
+                "coord is {:.1} away, at ({:.1}, {:.1})",
+                self.distance_from_center(),
+                self.x,
+                self.y
+            );
+        }
     }
-    coords
+
+    // Generate some random coordinates
+    fn get_arrow_coords(num: u32) -> Vec<Coord> {
+        let mut coords: Vec<Coord> = Vec::new();
+        for _ in 0..num {
+            let coord = Coord {
+                x: (rand::random::<f64>() - 0.5) * 12.0,
+                y: (rand::random::<f64>() - 0.5) * 12.0,
+            };
+            coords.push(coord);
+        }
+        coords
+    }
 }
